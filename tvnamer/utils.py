@@ -37,6 +37,8 @@ from tvnamer.tvnamer_exceptions import (
     UserAbort,
 )
 
+HACKED_FIRST_AIRED = True
+
 
 def log():
     """Returns the logger for current file
@@ -671,7 +673,9 @@ class EpisodeInfo(object):
         self.episodenumbers = episodenumbers
         self.episodename = episodename
         self.fullpath = filename
-        self.first_aired = None
+        if HACKED_FIRST_AIRED:
+            # hacked in first aired -- tk
+            self.first_aired = None
         if filename is not None:
             # Remains untouched, for use when renaming file
             self.originalfilename = os.path.basename(filename)
@@ -806,7 +810,9 @@ class EpisodeInfo(object):
                 raise EpisodeNameNotFound("Could not find episode name for %s" % cepno)
             else:
                 epnames.append(episodeinfo["episodeName"])
-                self.first_aired = episodeinfo["firstAired"]
+                if HACKED_FIRST_AIRED:
+                    # hacked in first_aired -- tk
+                    self.first_aired = episodeinfo["firstAired"]
 
         self.episodename = epnames
 
@@ -834,8 +840,11 @@ class EpisodeInfo(object):
             "episode": epno,
             "episodename": self.episodename,
             "ext": prep_extension,
-            "first_aired": self.first_aired,
         }
+
+        if HACKED_FIRST_AIRED:
+            # hacked in first aired -- tk
+            epdata["first_aired"] = self.first_aired
 
         return epdata
 
