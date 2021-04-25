@@ -26,6 +26,8 @@ from tvnamer.utils import (
 )
 
 
+ADDED_FIRST_AIRED=True
+
 def _replace_output_series_name(seriesname):
     # type: (str) -> str
     """transform TVDB series names
@@ -294,6 +296,8 @@ class BaseInfo(metaclass=ABCMeta):
                 raise EpisodeNameNotFound("Could not find episode name for %s" % cepno)
             else:
                 epnames.append(episodeinfo['episodeName'])
+                if ADDED_FIRST_AIRED:
+                    self.first_aired = episodeinfo["firstAired"]
 
         self.episodename = epnames
 
@@ -358,6 +362,8 @@ class EpisodeInfo(BaseInfo):
         self.seasonnumber = seasonnumber
         self.episodenumbers = episodenumbers
         self.episodename = episodename
+        if ADDED_FIRST_AIRED:
+            self.first_aired: Optional[datetime.date] = None
 
     def sortable_info(self):
         # type: () -> Tuple[str, int, List[int]]
@@ -400,6 +406,8 @@ class EpisodeInfo(BaseInfo):
             'episodename': self.episodename,
             'ext': prep_extension,
         }
+        if ADDED_FIRST_AIRED:
+            epdata['first_aired'] = self.first_aired
 
         return epdata
 
