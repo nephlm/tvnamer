@@ -563,7 +563,7 @@ def populate_series_id_list():
 
     if Config["series_id_list"] is None:
         with open(Config["series_file"], 'r') as fp:
-            _populate_series_id_list(fp.read())
+            _populate_series_id_list(fp)
 
 def _populate_series_id_list(contents:io.TextIOWrapper) -> None:
     """

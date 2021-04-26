@@ -39,9 +39,6 @@ def verify_name_gen(curtest, tvdb_instance):
 
     assertEquals(ep.seriesname, curtest['correctedseriesname'])
     assertEquals(ep.episodename, curtest['episodenames'])
-    # if hasattr(ep, 'first_aired'):
-    #     print(ep.__dict__)
-    #     assert False
 
 
 def test_name_generation_on_testfiles():
