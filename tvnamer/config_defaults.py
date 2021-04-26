@@ -66,6 +66,10 @@ if typing.TYPE_CHECKING:
         'episode_single': str,
         'episode_separator': str,
         'series_id': Optional[int],
+        'series_id_list': Optional[List[int]],
+        'series_file': Optional[str],
+        'series_file_delimiter': str,
+        'series_file_id_field': int,
         'force_name': Optional[str],
         'input_series_replacements': Dict[str, Union[int, str]],
         'output_series_replacements': Dict[str, str],
@@ -519,6 +523,16 @@ defaults = {
     # Series ID to use instead of searching if the value is set
     'series_id': None,
 
+    'series_id_list': None,
+
+    # Limit results to a list of series_ids containted in a file.
+    # By default the id is a pipe('|') delimited file and the id is in the first field.
+    # All other fields are ignored.
+    'series_file': None,
+    # Changes the file series_file delimiter
+    'series_file_delimiter': '|',
+    # Changes which file contains the series_id in the series file.
+    'series_file_id_field': 0,
     # Forced Name to use
     'force_name': None,
 

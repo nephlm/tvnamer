@@ -3,6 +3,8 @@
 """Main tvnamer utility functionality
 """
 
+import csv
+import io
 import os
 import sys
 import logging
@@ -22,6 +24,7 @@ from tvnamer import cliarg_parser, __version__
 from tvnamer.config_defaults import defaults
 from tvnamer.config import Config
 from .files import FileFinder, FileParser, Renamer, _apply_replacements_input
+from .tvdb_ui import TVNamerFilteredBaseUI, TVNamerFilteredConsoleUI
 from .utils import (
     warn,
     format_episode_numbers,
@@ -414,6 +417,13 @@ def tvnamer(paths):
     else:
         cache = True
 
+    custom_ui = None
+    if Config["series_id_list"]:
+        if Config["select_first"]:
+            custom_ui = TVNamerFilteredBaseUI
+        else:
+            custom_ui = TVNamerFilteredConsoleUI
+
     tvdb_instance = tvdb_api.Tvdb(
         interactive=not Config["select_first"],
         search_all_languages=Config["search_all_languages"],
@@ -421,6 +431,7 @@ def tvnamer(paths):
         dvdorder=dvdorder,
         cache=cache,
         apikey=api_key,
+        custom_ui=custom_ui
     )
 
     for episode in episodes_found:
@@ -517,6 +528,9 @@ def main():
     # Update global config object
     Config.update(opts.__dict__)
 
+    if Config["series_file"]:
+        populate_series_id_list()
+
     if Config["move_files_only"] and not Config["move_files_enable"]:
         opter.error(
             "Parameter move_files_enable cannot be set to false while parameter move_only is set to true."
@@ -538,6 +552,46 @@ def main():
         opter.error(errormsg)
     except SkipBehaviourAbort as errormsg:
         opter.error(errormsg)
+
+
+def populate_series_id_list():
+    """
+    Populate series_id_list in the config object from series_file.
+
+    If series_id_list already has a value, does nothing and exits.
+    """
+
+    if Config["series_id_list"] is None:
+        with open(Config["series_file"], 'r') as fp:
+            _populate_series_id_list(fp.read())
+
+def _populate_series_id_list(contents:io.TextIOWrapper) -> None:
+    """
+    Populate series_id_list in the config object from series_file.
+
+    If series_id_list already has a value, does nothing and exits.
+    """
+    if Config["series_id_list"] is None:
+        id_list = []
+        reader = csv.reader(contents, delimiter=Config["series_file_delimiter"])
+        for line in reader:
+            if not line:
+                continue
+            try:
+                pk_str = line[Config["series_file_id_field"]]
+            except IndexError:
+                warnings.warn(
+                    "Series file (%s) contains a malformed line (%s)" % (Config["series_file"], line)
+                )
+            if pk_str:
+                try:
+                    pk = int(pk_str)
+                    id_list.append(int(pk))
+                except ValueError:
+                    warnings.warn(
+                        "Series file (%s) contains a malformed series id. (%s)" % (Config["series_file"], pk_str)
+                    )
+        Config["series_id_list"] = id_list
 
 
 if __name__ == "__main__":

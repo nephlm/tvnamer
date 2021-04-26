@@ -3,10 +3,8 @@
 """Functional tests for tvnamer tests
 """
 
-import os
 from functional_runner import run_tvnamer, verify_out_data
 from helpers import attr
-import pytest
 
 
 @attr("functional")
